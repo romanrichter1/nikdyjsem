@@ -31,6 +31,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 .seg button[aria-pressed="true"]{background:var(--lamp);color:#2a2112}
 .seg button:focus-visible,.btn:focus-visible,.chip:focus-visible,.tab:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chatlink{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:999px;background:linear-gradient(135deg,#6d4aff,#c13584);color:#fff;font-weight:600;font-size:13px;text-decoration:none}
+.chatlink:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{all:unset;cursor:pointer;font-size:13px;padding:5px 11px;border-radius:999px;border:1px dashed var(--line);color:var(--ink-soft)}
 .chip[aria-pressed="true"]{border-style:solid;border-color:var(--lamp);color:var(--lamp);background:rgba(255,210,122,.08)}
@@ -130,10 +132,11 @@ textarea:focus{outline:2px solid var(--lamp);outline-offset:1px}
 <div class="wrap">
   <header>
     <div class="brand" id="brand">Nikdy jsem…<small id="sub">hra pro dva na dálku</small></div>
+    <div class="row" style="gap:8px"><a class="chatlink" id="chatLink" href="/chat">💬 Chat</a>
     <div class="seg" role="group" aria-label="Language">
       <button id="lcs" aria-pressed="true">🇨🇿 CZ</button>
       <button id="lth" aria-pressed="false">🇹🇭 TH</button>
-    </div>
+    </div></div>
   </header>
 
   <div class="status" id="status"><span class="dot" id="sdot"></span><span id="stext">…</span><button class="chip" id="invite" hidden></button></div>
@@ -491,6 +494,7 @@ let ROOM=new URLSearchParams(location.search).get("room");
 if(!ROOM||!/^[a-z0-9-]{4,40}$/.test(ROOM)){ROOM=Math.random().toString(36).slice(2,8)+"-"+Math.random().toString(36).slice(2,6);
   const u=new URL(location.href);u.searchParams.set("room",ROOM);history.replaceState(null,"",u)}
 let dbDown=false,booted=false,canTranslate=true;
+LS.set("lastRoom",ROOM);
 async function api(type,data){
   try{const r=await fetch("/api/room",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({room:ROOM,uid:me,type,data})});
     if(!r.ok)throw new Error(r.status);return true}catch(e){return false}
@@ -649,6 +653,7 @@ $("yes").onclick=()=>{S.choice="yes";S.dirty=true;renderPad()};
 $("no").onclick=()=>{S.choice="no";S.dirty=true;renderPad()};
 $("text").addEventListener("input",()=>{S.dirty=true;renderPad()});
 $("send").onclick=submit;
+$("chatLink").href="/chat?room="+encodeURIComponent(ROOM);
 $("invite").onclick=()=>{navigator.clipboard?.writeText(location.href).then(()=>toast("✓ "+t("copied")),()=>{S.view="set";renderAll()});if(!navigator.clipboard){S.view="set";renderAll()}};
 for(const [id,v] of [["tPlay","play"],["tHist","hist"],["tSet","set"]])$(id).onclick=()=>{S.view=v;renderAll()};
 $("pfront").addEventListener("click",async e=>{
