@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1b1830">
-<title>Nikdy jsem · ฉันไม่เคย</title>
+<title>Nikdy jsem · Roman & Saisuni</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Sriracha&family=Mali:wght@400;500;600&display=swap">
 <style>
@@ -453,30 +453,30 @@ const Q = RAW.trim().split("\n").map((l,i)=>{const a=l.indexOf("|"),b=l.lastInde
 
 const CATS = ["life","past","travel","fun","love","us","spicy"];
 const T = {
-  cs:{sub:"hra pro dva na dálku",lead:"Nikdy jsem…",cats:{life:"Život",past:"Minulost",travel:"Cestování",fun:"Zábava & jídlo",love:"Láska",us:"My dva",spicy:"18+ Pikantní"},
+  cs:{sub:"Roman & Saisuni",lead:"Nikdy jsem…",cats:{life:"Život",past:"Minulost",travel:"Cestování",fun:"Zábava & jídlo",love:"Láska",us:"My dva",spicy:"18+ Pikantní"},
     play:"Hrát",hist:"Naše odpovědi",set:"Nastavení",next:"Další karta →",shuffle:"Zamíchat",you:"Tvoje odpověď",yes:"Já ano!",no:"Já ne",
-    ph:"Řekni k tomu víc… kdy, s kým, jak to bylo?",send:"Odeslat",sent:"Odesláno",update:"Upravit odpověď",partner:"Odpověď partnera",
-    hidden:"Odpověď je skrytá",hiddenSub:"Nejdřív odpověz ty — pak se karta otočí.",waiting:"Zatím neodpověděl/a",waitingSub:"Až odpoví, uvidíš to tady.",
+    ph:"Řekni k tomu víc… kdy, s kým, jak to bylo?",send:"Odeslat",sent:"Odesláno",update:"Upravit odpověď",partner:"Odpověď od Saisuni",
+    hidden:"Odpověď je skrytá",hiddenSub:"Nejdřív odpověz ty — pak se karta otočí.",waiting:"Saisuni zatím neodpověděla",waitingSub:"Až odpoví, uvidíš to tady.",
     did:"Já ano!",didnt:"Já ne",orig:"Původně",translate:"Přeložit",gt:"Otevřít v Google Překladači",
     micHint:"Klepni na mikrofon a mluv — text se sám napíše.",micNo:"Tady prohlížeč diktování neumí — použij mikrofon na klávesnici telefonu.",
     live:"Hrajete spolu",local:"Databáze není připojená — hra se zatím neukládá.",connecting:"Připojuji…",
     pick:"Vyber nejdřív „Já ano“ nebo „Já ne“.",translating:"Překládám…",
     setupT:"Jak ti má partner říkat?",nickPh:"Tvoje jméno",genderL:"Tvary v otázkách:",gm:"on (spal)",gf:"ona (spala)",save:"Uložit",
     card:"karta",of:"z",noHist:"Zatím žádné odpovědi. Otoč první kartu!",both:"Oba ano",match:"Shoda",answered:"Zodpovězeno",
-    me:"Já",them:"Partner",waitShort:"čeká…",partnerAns:"odpověděl/a ✓",nobody:"Partner se ještě nepřipojil",
-    setNick:"Změnit jméno a tvary",reset:"Začít balíček znovu",resetDone:"Balíček zamíchán",shareHint:"Tohle je odkaz na vaši hru. Pošli ho partnerce — kdo ho má, hraje s tebou. Každý si nahoře přepne svůj jazyk.",copy:"Zkopírovat odkaz",copied:"Odkaz zkopírován",
+    me:"Roman",them:"Saisuni",waitShort:"čeká…",partnerAns:"odpověděla ✓",nobody:"Saisuni se ještě nepřipojila",
+    setNick:"Změnit jméno a tvary",reset:"Začít balíček znovu",resetDone:"Balíček zamíchán",shareHint:"Tohle je odkaz na vaši hru. Pošli ho Saisuni — kdo ho má, hraje s tebou. Každý si nahoře přepne svůj jazyk.",copy:"Zkopírovat odkaz",copied:"Odkaz zkopírován",
     onlyQ:"Žádná kategorie není vybraná."},
-  th:{sub:"เกมสำหรับสองคนที่อยู่ไกลกัน",lead:"ฉันไม่เคย…",cats:{life:"ชีวิต",past:"อดีต",travel:"เที่ยว",fun:"สนุก & อาหาร",love:"ความรัก",us:"เราสองคน",spicy:"18+ เผ็ดร้อน"},
+  th:{sub:"Saisuni & Roman",lead:"ฉันไม่เคย…",cats:{life:"ชีวิต",past:"อดีต",travel:"เที่ยว",fun:"สนุก & อาหาร",love:"ความรัก",us:"เราสองคน",spicy:"18+ เผ็ดร้อน"},
     play:"เล่น",hist:"คำตอบของเรา",set:"ตั้งค่า",next:"การ์ดถัดไป →",shuffle:"สับการ์ด",you:"คำตอบของคุณ",yes:"ฉันเคย!",no:"ไม่เคย",
-    ph:"เล่าเพิ่มหน่อย… เมื่อไหร่ กับใคร เป็นยังไง?",send:"ส่ง",sent:"ส่งแล้ว",update:"แก้ไขคำตอบ",partner:"คำตอบของอีกฝ่าย",
-    hidden:"คำตอบถูกซ่อนอยู่",hiddenSub:"ตอบก่อน แล้วการ์ดจะพลิก",waiting:"ยังไม่ได้ตอบ",waitingSub:"เมื่อเขาตอบ จะเห็นตรงนี้",
+    ph:"เล่าเพิ่มหน่อย… เมื่อไหร่ กับใคร เป็นยังไง?",send:"ส่ง",sent:"ส่งแล้ว",update:"แก้ไขคำตอบ",partner:"คำตอบของ Roman",
+    hidden:"คำตอบถูกซ่อนอยู่",hiddenSub:"ตอบก่อน แล้วการ์ดจะพลิก",waiting:"Roman ยังไม่ได้ตอบ",waitingSub:"เมื่อเขาตอบ จะเห็นตรงนี้",
     did:"เคย!",didnt:"ไม่เคย",orig:"ต้นฉบับ",translate:"แปล",gt:"เปิดใน Google แปลภาษา",
     micHint:"แตะไมค์แล้วพูด ข้อความจะพิมพ์เอง",micNo:"ใช้ไมค์บนแป้นพิมพ์มือถือเพื่อพูดแทนการพิมพ์",
     live:"กำลังเล่นด้วยกัน",local:"ยังไม่ได้เชื่อมต่อฐานข้อมูล — เกมยังไม่ถูกบันทึก",connecting:"กำลังเชื่อมต่อ…",
     pick:"เลือก „ฉันเคย“ หรือ „ไม่เคย“ ก่อน",translating:"กำลังแปล…",
     setupT:"อยากให้อีกฝ่ายเรียกคุณว่าอะไร?",nickPh:"ชื่อของคุณ",genderL:"",gm:"",gf:"",save:"บันทึก",
     card:"การ์ด",of:"จาก",noHist:"ยังไม่มีคำตอบ ลองพลิกการ์ดแรกเลย!",both:"เคยทั้งคู่",match:"ตรงกัน",answered:"ตอบแล้ว",
-    me:"ฉัน",them:"อีกฝ่าย",waitShort:"รออยู่…",partnerAns:"ตอบแล้ว ✓",nobody:"อีกฝ่ายยังไม่ได้เข้าร่วม",
+    me:"Saisuni",them:"Roman",waitShort:"รออยู่…",partnerAns:"ตอบแล้ว ✓",nobody:"Roman ยังไม่ได้เข้าร่วม",
     setNick:"เปลี่ยนชื่อ",reset:"เริ่มสำรับใหม่",resetDone:"สับการ์ดแล้ว",shareHint:"นี่คือลิงก์เกมของเรา ใครมีลิงก์นี้ก็เล่นด้วยกันได้ แต่ละคนเลือกภาษาของตัวเองด้านบน",copy:"คัดลอกลิงก์",copied:"คัดลอกแล้ว",
     onlyQ:"ยังไม่ได้เลือกหมวดหมู่"}
 };
@@ -535,6 +535,8 @@ function renderChrome(){
   $("sdot").className="dot"+(online?" on":"");
   $("stext").textContent=online?(t("live")+(S.nick?" · "+S.nick:"")+(pn?" & "+pn:" · "+t("nobody"))):(dbDown?t("local"):t("connecting"));
   $("setup").hidden=!!S.nick;
+  if(!S.nick&&!$("nick").value)$("nick").value=S.lang==="th"?"Saisuni":"Roman";
+  if(!S.nick&&($("nick").value==="Roman"||$("nick").value==="Saisuni"))$("nick").value=S.lang==="th"?"Saisuni":"Roman";
   $("invite").hidden=!!pid;$("invite").textContent=t("copy");
 }
 function renderCard(anim){
