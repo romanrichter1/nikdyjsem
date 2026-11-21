@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b1830">
+<title>Nikdy jsem · ฉันไม่เคย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Sriracha&family=Mali:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centred column — a night-blue table with a stack of lined index cards, answer pad below, partner's card flips open. */
+:root{
+  --night:#1b1830; --night-2:#262143; --ink-soft:#a9a3c9;
+  --paper:#fbf7ec; --paper-ink:#2a2540; --rule:#c9d8ef; --margin:#ef8f9a;
+  --yes:#ff5d8f; --no:#36b9a8; --lamp:#ffd27a; --line:#3a345e;
+  --hand:"Caveat","Sriracha",cursive;
+  --ui:"Mali","Sriracha",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0}[hidden]{display:none!important}button{font:inherit}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:radial-gradient(1200px 700px at 50% -10%,#3a2f5f 0%,var(--night) 55%) fixed,var(--night);color:#f2effa;font-family:var(--ui);font-size:15px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--hand);font-size:34px;font-weight:700;line-height:1;color:var(--lamp);letter-spacing:.5px}
+.brand small{display:block;font-family:var(--ui);font-size:12px;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.seg{display:inline-flex;background:var(--night-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;font-size:13px;color:var(--ink-soft);font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--lamp);color:#2a2112}
+.seg button:focus-visible,.btn:focus-visible,.chip:focus-visible,.tab:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-size:13px;padding:5px 11px;border-radius:999px;border:1px dashed var(--line);color:var(--ink-soft)}
+.chip[aria-pressed="true"]{border-style:solid;border-color:var(--lamp);color:var(--lamp);background:rgba(255,210,122,.08)}
+.chip.spicy[aria-pressed="true"]{border-color:var(--yes);color:var(--yes);background:rgba(255,93,143,.1)}
+.status{font-size:12.5px;color:var(--ink-soft);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:#6b6590;flex:none}
+.dot.on{background:#5be3a2;box-shadow:0 0 0 3px rgba(91,227,162,.18)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tab{all:unset;cursor:pointer;padding:8px 12px;font-weight:600;font-size:14px;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:#fff;border-color:var(--lamp)}
+
+/* card stack */
+.table{position:relative;perspective:1400px;min-height:270px}
+.stack{position:absolute;inset:0;pointer-events:none}
+.stack i{position:absolute;inset:6px 4px -6px;background:#e9e3d2;border-radius:6px;transform:rotate(-2.5deg);box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.stack i+i{transform:rotate(1.8deg);background:#f1ecdc;inset:3px 2px -3px}
+.card{position:relative;background:var(--paper);color:var(--paper-ink);border-radius:6px;min-height:270px;padding:22px 22px 18px 54px;
+  background-image:linear-gradient(90deg,transparent 40px,var(--margin) 40px,var(--margin) 42px,transparent 42px),repeating-linear-gradient(transparent 0 33px,var(--rule) 33px 34px);
+  background-position:0 0,0 14px;box-shadow:0 14px 36px rgba(0,0,0,.45);transform-origin:50% 120%}
+.card .meta{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8b84a6;font-family:var(--ui);margin-bottom:4px}
+.card .meta .cat.spicy{color:#d63f6f;font-weight:600}
+.card .lead{font-family:var(--hand);font-size:30px;font-weight:700;color:#5b4fa8;line-height:34px}
+.card .q{font-family:var(--hand);font-size:34px;line-height:34px;font-weight:500;text-wrap:balance;margin-top:0}
+.card .q.th{font-size:27px}
+.card .foot{position:absolute;left:54px;right:22px;bottom:12px;display:flex;justify-content:space-between;font-size:12px;color:#8b84a6;font-variant-numeric:tabular-nums}
+.deal-in{animation:dealIn .55s cubic-bezier(.2,.9,.25,1.15) both}
+.deal-out{animation:dealOut .4s ease-in both}
+@keyframes dealIn{from{transform:translate(70%,-30px) rotate(14deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes dealOut{to{transform:translate(-90%,40px) rotate(-18deg);opacity:0}}
+.navrow{display:flex;justify-content:space-between;gap:8px}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:12px;font-weight:600;font-size:15px;background:var(--night-2);border:1px solid var(--line);color:#f2effa;text-align:center}
+.btn:hover{border-color:#5a5290}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.ghost{background:transparent}
+.btn.lamp{background:var(--lamp);color:#2a2112;border-color:var(--lamp)}
+
+/* answer pad */
+.pad{background:var(--night-2);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.pad h3,.partner h3{margin:0;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.yn button{all:unset;cursor:pointer;text-align:center;padding:14px 8px;border-radius:14px;font-family:var(--hand);font-size:28px;font-weight:700;border:2px solid var(--line);transition:transform .15s}
+.yn button:active{transform:scale(.96)}
+.yn .y{color:var(--yes)} .yn .n{color:var(--no)}
+.yn .y[aria-pressed="true"]{background:var(--yes);color:#fff;border-color:var(--yes)}
+.yn .n[aria-pressed="true"]{background:var(--no);color:#fff;border-color:var(--no)}
+.yn button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+.txt{position:relative}
+textarea{width:100%;min-height:92px;resize:vertical;border-radius:12px;border:1px solid var(--line);background:#1a1630;color:#fff;padding:12px 52px 12px 12px;font:inherit;font-size:16px}
+textarea:focus{outline:2px solid var(--lamp);outline-offset:1px}
+.mic{position:absolute;right:8px;top:8px;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--night);color:var(--lamp);cursor:pointer;display:grid;place-items:center}
+.mic.live{background:var(--yes);color:#fff;border-color:var(--yes);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(255,93,143,.2)}}
+.hint{font-size:12.5px;color:var(--ink-soft)}
+.partial{color:var(--lamp);font-style:italic}
+
+/* partner card (flip) */
+.partner{display:flex;flex-direction:column;gap:10px}
+.flip{perspective:1200px}
+.flip-in{position:relative;transition:transform .7s cubic-bezier(.3,.8,.3,1);transform-style:preserve-3d;min-height:150px}
+.flip.open .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;padding:16px 18px}
+.back{background:repeating-linear-gradient(45deg,#3b3166 0 12px,#342b5c 12px 24px);border:1px solid #4e4385;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:#d9d3f5}
+.back b{font-family:var(--hand);font-size:26px;color:var(--lamp)}
+.front{transform:rotateY(180deg);background:var(--paper);color:var(--paper-ink);background-image:repeating-linear-gradient(transparent 0 29px,var(--rule) 29px 30px);overflow:auto}
+.front .who{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#8b84a6}
+.front .verdict{font-family:var(--hand);font-size:30px;font-weight:700;line-height:32px}
+.front .verdict.y{color:#d63f6f}.front .verdict.n{color:#1f8f81}
+.front .said{font-family:var(--hand);font-size:24px;line-height:30px;white-space:pre-wrap;overflow-wrap:anywhere}
+.front .orig{font-size:12.5px;color:#7a7396;margin-top:6px;overflow-wrap:anywhere}
+.front a,.front button.link{color:#5b4fa8;font-size:12.5px;background:none;border:0;padding:0;cursor:pointer;font:inherit;font-size:12.5px;text-decoration:underline}
+.flip.static .flip-in{transform:none}.flip.static .front{transform:none;position:relative}.flip.static .back{display:none}
+
+/* history */
+.hist{display:flex;flex-direction:column;gap:12px}
+.hcard{background:var(--paper);color:var(--paper-ink);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.hcard .hq{font-family:var(--hand);font-size:24px;line-height:1.1;font-weight:700;color:#3b3270}
+.hans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hans>div{min-width:0;border-top:1px dashed #d4cde6;padding-top:6px}
+.hans .who{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:#8b84a6}
+.hans .v{font-family:var(--hand);font-size:22px;font-weight:700}
+.hans .v.y{color:#d63f6f}.hans .v.n{color:#1f8f81}.hans .v.w{color:#aaa3c4;font-weight:500}
+.hans .t{font-family:var(--hand);font-size:20px;line-height:1.15;overflow-wrap:anywhere}
+.empty{color:var(--ink-soft);text-align:center;padding:30px 10px;border:1px dashed var(--line);border-radius:14px}
+.score{display:flex;gap:10px;flex-wrap:wrap}
+.score div{flex:1;min-width:120px;background:var(--night-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.score b{display:block;font-family:var(--hand);font-size:30px;color:var(--lamp);line-height:1}
+.score span{font-size:12px;color:var(--ink-soft)}
+.setup{background:var(--night-2);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.setup input{width:100%;border-radius:10px;border:1px solid var(--line);background:#1a1630;color:#fff;padding:10px 12px;font:inherit;font-size:16px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--lamp);color:#2a2112;padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:20;max-width:calc(100% - 32px)}
+@media (max-width:420px){.card .q{font-size:30px}.card{padding-left:50px}.hans{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.deal-in,.deal-out,.mic.live{animation:none}.flip-in{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand" id="brand">Nikdy jsem…<small id="sub">hra pro dva na dálku</small></div>
+    <div class="seg" role="group" aria-label="Language">
+      <button id="lcs" aria-pressed="true">🇨🇿 CZ</button>
+      <button id="lth" aria-pressed="false">🇹🇭 TH</button>
+    </div>
+  </header>
+
+  <div class="status" id="status"><span class="dot" id="sdot"></span><span id="stext">…</span><button class="chip" id="invite" hidden></button></div>
+
+  <section class="setup" id="setup" hidden>
+    <h3 style="margin:0;font-size:15px" id="setupT"></h3>
+    <input id="nick" maxlength="24" autocomplete="off">
+    <div class="row" id="genderRow">
+      <span class="hint" id="genderL"></span>
+      <div class="seg" role="group">
+        <button id="gm" aria-pressed="false"></button>
+        <button id="gf" aria-pressed="false"></button>
+      </div>
+    </div>
+    <button class="btn lamp" id="saveNick"></button>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tPlay" aria-selected="true"></button>
+    <button class="tab" role="tab" id="tHist" aria-selected="false"></button>
+    <button class="tab" role="tab" id="tSet" aria-selected="false"></button>
+  </div>
+
+  <main id="play">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="chips" id="cats"></div>
+      <div class="table">
+        <div class="stack"><i></i><i></i></div>
+        <article class="card" id="card" aria-live="polite"></article>
+      </div>
+      <div class="navrow">
+        <button class="btn ghost" id="prev">←</button>
+        <button class="btn ghost" id="shuffle"></button>
+        <button class="btn lamp" id="next"></button>
+      </div>
+
+      <section class="pad">
+        <h3 id="youT"></h3>
+        <div class="yn">
+          <button class="y" id="yes" aria-pressed="false"></button>
+          <button class="n" id="no" aria-pressed="false"></button>
+        </div>
+        <div class="txt">
+          <textarea id="text"></textarea>
+          <button class="mic" id="mic" hidden aria-label="Dictate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+        </div>
+        <div class="hint" id="micHint"></div>
+        <div class="partial" id="partial" hidden></div>
+        <button class="btn lamp" id="send"></button>
+      </section>
+
+      <section class="partner">
+        <h3 id="partnerT"></h3>
+        <div class="flip" id="flip">
+          <div class="flip-in">
+            <div class="face back" id="pback"></div>
+            <div class="face front" id="pfront"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <main id="hist" hidden></main>
+  <main id="set" hidden></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- questions: category | česky (po „Nikdy jsem“) | ไทย (หลัง „ฉันไม่เคย“) ----------
+   {a} = mužský/ženský tvar (spal / spala), {x|y} = muž | žena */
+const RAW = `
+life|nelhal{a} o svém věku|โกหกเรื่องอายุของตัวเอง
+life|nebrečel{a} u filmu|ร้องไห้ตอนดูหนัง
+life|nezpíval{a} karaoke před lidmi|ร้องคาราโอเกะต่อหน้าคนอื่น
+life|nedal{a} výpověď z práce ze dne na den|ลาออกจากงานแบบกะทันหัน
+life|nemiloval{a} svého mazlíčka víc než většinu lidí|รักสัตว์เลี้ยงมากกว่าคนส่วนใหญ่
+life|nespal{a} až do odpoledne|นอนตื่นสายจนถึงบ่าย
+life|se nenechal{a} potetovat|สักลาย
+life|nepřemýšlel{a} o tom, že úplně změním kariéru|คิดจะเปลี่ยนอาชีพไปเลย
+life|neutratil{a} celou výplatu za jeden víkend|ใช้เงินเดือนหมดในสุดสัปดาห์เดียว
+life|nedostal{a} pokutu od policie|โดนตำรวจปรับ
+life|netancoval{a} na stole|เต้นบนโต๊ะ
+life|se neopil{a} tak, že nevím, jak jsem se dostal{a} domů|เมาจนจำไม่ได้ว่ากลับบ้านยังไง
+life|nezkoušel{a} meditovat|ลองนั่งสมาธิ
+life|nepřečetl{a} knihu za jeden den|อ่านหนังสือจบในวันเดียว
+life|nezačal{a} vlastní podnikání|เริ่มทำธุรกิจของตัวเอง
+life|nelitoval{a} nového účesu|ตัดผมแล้วเสียใจทีหลัง
+life|neprojížděl{a} něčí Instagram celé hodiny|ส่องไอจีของใครบางคนเป็นชั่วโมง
+life|nezablokoval{a} někoho po hádce|บล็อกใครบางคนหลังทะเลาะกัน
+life|nepředstíral{a} nemoc, abych nemusel{a} do práce|แกล้งป่วยเพื่อจะได้ไม่ต้องไปทำงาน
+life|nemluvil{a} {sám|sama} se sebou nahlas|พูดกับตัวเองเสียงดัง
+life|se nebál{a} tmy i jako dospěl{ý|á}|กลัวความมืดแม้จะโตแล้ว
+life|nevěřil{a} na duchy|เชื่อเรื่องผี
+life|nebyl{a} u věštkyně nebo kartářky|ไปดูดวง
+life|nevyhrál{a} žádnou soutěž|ชนะการแข่งขันหรือการประกวด
+life|si nezlomil{a} kost|กระดูกหัก
+life|nestrávil{a} noc v nemocnici|นอนค้างคืนที่โรงพยาบาล
+life|nesnil{a} o tom, že budu slavn{ý|á}|ฝันอยากเป็นคนดัง
+life|nebrečel{a} v práci|ร้องไห้ที่ทำงาน
+life|se nepohádal{a} se šéfem|ทะเลาะกับเจ้านาย
+life|nepracoval{a} na noční směny|ทำงานกะดึก
+life|neinvestoval{a} do kryptoměn nebo akcií|ลงทุนในคริปโตหรือหุ้น
+life|nepůjčil{a} peníze, které už jsem nikdy neviděl{a}|ให้ยืมเงินแล้วไม่เคยได้คืน
+life|nelhal{a} v životopise|โกหกในเรซูเม่
+life|nebyl{a} na koncertě {sám|sama}|ไปดูคอนเสิร์ตคนเดียว
+life|neviděl{a} východ slunce po probdělé noci|ดูพระอาทิตย์ขึ้นหลังจากไม่ได้นอนทั้งคืน
+life|nezměnil{a} názor na něco zásadního kvůli jednomu člověku|เปลี่ยนความคิดเรื่องสำคัญเพราะคนคนเดียว
+life|nebyl{a} na terapii nebo u psychologa|ไปพบนักบำบัดหรือนักจิตวิทยา
+life|nepoznal{a}, co je to opravdová samota|รู้จักความเหงาที่แท้จริง
+life|nedělal{a} něco jen proto, abych udělal{a} radost rodičům|ทำอะไรบางอย่างเพียงเพื่อให้พ่อแม่ดีใจ
+life|nesnil{a} o tom, že budu žít u moře|ฝันว่าจะได้อยู่ริมทะเล
+past|neutekl{a} z domova|หนีออกจากบ้าน
+past|nekouřil{a} tajně před rodiči|แอบสูบบุหรี่ไม่ให้พ่อแม่รู้
+past|nelhal{a} rodičům, kde jsem byl{a} v noci|โกหกพ่อแม่ว่าเมื่อคืนไปอยู่ที่ไหน
+past|neopakoval{a} ročník ve škole|เรียนซ้ำชั้น
+past|nebyl{a} vyhozen{ý|á} z hodiny|โดนไล่ออกจากห้องเรียน
+past|neopisoval{a} při testu|ลอกข้อสอบ
+past|neukradl{a} nic z obchodu|ขโมยของในร้าน
+past|neměl{a} imaginárního kamaráda|มีเพื่อนในจินตนาการ
+past|nebyl{a} šikanovan{ý|á}|โดนบูลลี่
+past|nehrál{a} na hudební nástroj|เล่นเครื่องดนตรี
+past|nedělal{a} sport závodně|เล่นกีฬาแบบแข่งขัน
+past|neměl{a} účes, za který se dnes stydím|มีทรงผมที่ตอนนี้อายมาก
+past|nepsal{a} si deník|เขียนไดอารี่
+past|nerozbil{a} něco drahého a nesvedl{a} to na někoho jiného|ทำของแพงพังแล้วโทษคนอื่น
+past|nebyl{a} zamilovan{ý|á} do učitele nebo učitelky|แอบชอบครู
+past|nebydlel{a} v jiné zemi|เคยอาศัยอยู่ต่างประเทศ
+past|se nepral{a} se sourozencem|ทะเลาะชกต่อยกับพี่น้อง
+past|neřekl{a} rodičům, že je nenávidím|บอกพ่อแม่ว่าเกลียดพวกเขา
+past|nezažil{a} rozvod rodičů|ผ่านการหย่าร้างของพ่อแม่
+past|se nestěhoval{a} víc než pětkrát|ย้ายบ้านมากกว่าห้าครั้ง
+past|nepracoval{a} už jako teenager|ทำงานตั้งแต่เป็นวัยรุ่น
+past|neskočil{a} do vody z velké výšky|กระโดดน้ำจากที่สูงมาก
+past|nebyl{a} na letním táboře|ไปค่ายฤดูร้อน
+past|se neztratil{a} jako dítě|หลงทางตอนเด็ก
+past|nestrávil{a} noc na policejní stanici|ค้างคืนที่สถานีตำรวจ
+past|se s nikým nepral{a}|ชกต่อยกับใคร
+past|neměl{a} přezdívku, kterou nesnáším|มีชื่อเล่นที่เกลียด
+past|nezapomněl{a} na svou první lásku|ลืมรักแรก
+past|nelitoval{a} rozhodnutí, které mi změnilo život|เสียใจกับการตัดสินใจที่เปลี่ยนชีวิต
+past|neviděl{a} sníh|เห็นหิมะ
+past|nebyl{a} v dětství na někoho opravdu zl{ý|á}|ใจร้ายกับใครจริงๆ ตอนเด็ก
+past|nemyslel{a} si, že budu jako dospěl{ý|á} úplně jin{ý|á}, než jsem|คิดว่าตอนโตจะเป็นคนที่ต่างจากตอนนี้มาก
+past|neodpustil{a} někomu, kdo mi hodně ublížil|ให้อภัยคนที่ทำร้ายฉันมาก
+travel|necestoval{a} {sám|sama} do cizí země|เดินทางไปต่างประเทศคนเดียว
+travel|nezmeškal{a} letadlo|ตกเครื่องบิน
+travel|nespal{a} na letišti|นอนที่สนามบิน
+travel|nebyl{a} v Česku|ไปสาธารณรัฐเช็ก
+travel|nebyl{a} v Thajsku|ไปประเทศไทย
+travel|nestopoval{a}|โบกรถ
+travel|nespal{a} pod širým nebem|นอนกลางแจ้งใต้ท้องฟ้า
+travel|se nekoupal{a} nah{ý|á} v moři|ว่ายน้ำทะเลแบบเปลือย
+travel|nevyrazil{a} na výlet úplně bez plánu|ออกเดินทางแบบไม่มีแผนเลย
+travel|nelyžoval{a}|เล่นสกี
+travel|se nepotápěl{a}|ดำน้ำลึก
+travel|neskočil{a} padákem ani bungee|กระโดดร่มหรือบันจี้จัมพ์
+travel|neztratil{a} pas|ทำพาสปอร์ตหาย
+travel|neměl{a} letní lásku na dovolené|มีรักช่วงซัมเมอร์ตอนไปเที่ยว
+travel|necestoval{a} jen s batohem|เที่ยวแบบแบกเป้
+travel|nebyl{a} na hudebním festivalu|ไปเทศกาลดนตรี
+travel|nejel{a} na motorce|ขี่มอเตอร์ไซค์
+travel|neřídil{a} celou noc|ขับรถทั้งคืน
+travel|nespal{a} na lodi|นอนบนเรือ
+travel|neviděl{a} polární záři|เห็นแสงเหนือ
+travel|nevylezl{a} na vysokou horu|ปีนภูเขาสูง
+travel|nebyl{a} v Americe|ไปอเมริกา
+travel|vážně neplánoval{a}, že se odstěhuju do jiné země|วางแผนจริงจังว่าจะย้ายไปอยู่ประเทศอื่น
+travel|nebyl{a} na dovolené s partnerem|ไปเที่ยวกับแฟน
+travel|neutratil{a} na dovolené víc, než jsem měl{a}|ใช้เงินตอนเที่ยวเกินกว่าที่มี
+travel|nespal{a} v hostelu s cizími lidmi|นอนในโฮสเทลกับคนแปลกหน้า
+travel|nezažil{a} zemětřesení nebo tajfun|เจอแผ่นดินไหวหรือพายุไต้ฝุ่น
+travel|nebyl{a} na ostrově, kde nebyl signál|ไปเกาะที่ไม่มีสัญญาณโทรศัพท์
+travel|nebyl{a} v zemi, kde jsem nerozuměl{a} ani slovo|ไปประเทศที่ฟังไม่ออกสักคำ
+travel|nezůstal{a} na místě déle jen kvůli člověku, kterého jsem tam potkal{a}|อยู่ที่ไหนสักแห่งนานขึ้นเพราะคนที่เพิ่งเจอ
+fun|nejedl{a} hmyz|กินแมลง
+fun|nevařil{a} pro někoho na rande|ทำอาหารให้คนที่เดทด้วย
+fun|nejedl{a} nic tak pálivého, že jsem brečel{a}|กินเผ็ดจนน้ำตาไหล
+fun|nevypil{a} {sám|sama} celou láhev vína|ดื่มไวน์หมดขวดคนเดียว
+fun|nebyl{a} {vegetarián|vegetariánka}|เป็นมังสวิรัติ
+fun|si neobjednal{a} jídlo ve tři ráno|สั่งอาหารตอนตีสาม
+fun|neochutnal{a} durian|ชิมทุเรียน
+fun|nepil{a} pivo k snídani|ดื่มเบียร์เป็นมื้อเช้า
+fun|nesnědl{a} {sám|sama} celou pizzu|กินพิซซ่าหมดถาดคนเดียว
+fun|nehrál{a} videohry celou noc|เล่นเกมทั้งคืน
+fun|nezhlédl{a} celý seriál za víkend|ดูซีรีส์จบในสุดสัปดาห์เดียว
+fun|nezkusil{a} trávu|ลองกัญชา
+fun|nezůstal{a} v klubu do rána|อยู่ในผับจนเช้า
+fun|nezpíval{a} ve sprše na plné pecky|ร้องเพลงเสียงดังในห้องอาบน้ำ
+fun|tajně nevyhodil{a} jídlo, které pro mě někdo uvařil|แอบทิ้งอาหารที่คนอื่นทำให้
+fun|nejedl{a} syrové maso|กินเนื้อดิบ
+fun|neupekl{a} dort|อบเค้กเอง
+fun|nepředstíral{a}, že mi jídlo chutná|แกล้งทำเป็นว่าอาหารอร่อย
+fun|neprohrál{a} hodně peněz v kasinu|เสียเงินเยอะในคาสิโน
+fun|se nedíval{a} na horor {sám|sama} v noci|ดูหนังผีคนเดียวตอนกลางคืน
+fun|neochutnal{a} českou svíčkovou|ชิมสวีชโควา (อาหารเช็ก)
+fun|nejedl{a} som tam tak pálivý, že jsem nemohl{a} mluvit|กินส้มตำเผ็ดจนพูดไม่ออก
+fun|nespal{a} ve stanu|นอนในเต็นท์
+fun|nejel{a} na horské dráze|เล่นรถไฟเหาะ
+fun|neviděl{a} naživo thajský box|ดูมวยไทยสดๆ
+fun|nepil{a} pálenku, ze které mi bylo zle|ดื่มเหล้าแรงจนเมาค้างหนัก
+fun|nevyhrál{a} hru tím, že jsem podváděl{a}|ชนะเกมด้วยการโกง
+fun|nevyfotil{a} jídlo dřív, než jsem ho ochutnal{a}|ถ่ายรูปอาหารก่อนจะชิม
+love|se nezamiloval{a} na první pohled|ตกหลุมรักแรกพบ
+love|neřekl{a} „miluju tě“ jako první|บอกรักก่อน
+love|neřekl{a} „miluju tě“ a neslyšel{a} to zpátky|บอกรักแต่อีกฝ่ายไม่ได้บอกกลับ
+love|neměl{a} vztah na dálku|มีความรักทางไกล
+love|nebyl{a} na rande naslepo|ไปเดทบอด
+love|nepoužíval{a} seznamku|ใช้แอปหาคู่
+love|neghostnul{a} někoho|หายไปเฉยๆ จากใครบางคน (ghosting)
+love|se mi nestalo, že by mě někdo ghostnul|โดนใครบางคนหายไปเฉยๆ
+love|se {nerozešel|nerozešla} s někým přes zprávu|บอกเลิกผ่านข้อความ
+love|nebyl{a} podveden{ý|á}|โดนนอกใจ
+love|nepodvedl{a} partnera|นอกใจแฟน
+love|nebrečel{a} kvůli rozchodu celé dny|ร้องไห้หลายวันเพราะเลิกกัน
+love|se nevrátil{a} k ex|กลับไปคบแฟนเก่า
+love|nenapsal{a} ex po půlnoci|ทักแฟนเก่าหลังเที่ยงคืน
+love|nedostal{a} kytici jen tak bez důvodu|ได้ดอกไม้โดยไม่มีเหตุผลพิเศษ
+love|nenapsal{a} milostný dopis|เขียนจดหมายรัก
+love|nebyl{a} zasnouben{ý|á}|เคยหมั้น
+love|nebydlel{a} s partnerem|อยู่ด้วยกันกับแฟน
+love|nepředstavil{a} partnera rodičům|พาแฟนไปพบพ่อแม่
+love|nemyslel{a} na někoho celý den po prvním rande|คิดถึงใครทั้งวันหลังเดทแรก
+love|nebyl{a} zamilovan{ý|á} do kamaráda nebo kamarádky|แอบรักเพื่อน
+love|nežárlil{a} kvůli hlouposti|หึงเรื่องไร้สาระ
+love|nekontroloval{a} partnerovi telefon|แอบเช็กโทรศัพท์แฟน
+love|neměl{a} vztah delší než tři roky|คบใครนานกว่าสามปี
+love|nebyl{a} single déle než rok|โสดนานกว่าหนึ่งปี
+love|v hlavě neplánoval{a} svatbu s někým, koho jsem sotva znal{a}|วางแผนงานแต่งในหัวกับคนที่เพิ่งรู้จัก
+love|se nezamiloval{a} přes internet|ตกหลุมรักผ่านออนไลน์
+love|nepolíbil{a} někoho o půlnoci na Silvestra|จูบใครตอนเที่ยงคืนวันส่งท้ายปีเก่า
+love|nepřipravil{a} pro někoho romantické překvapení|เตรียมเซอร์ไพรส์โรแมนติกให้ใคร
+love|nebyl{a} ve vztahu, kde jsem miloval{a} víc já|อยู่ในความสัมพันธ์ที่ฉันรักมากกว่า
+love|se nevzdal{a} někoho, koho jsem miloval{a}|ยอมปล่อยคนที่รักไป
+love|si nemyslel{a}, že najdu lásku v jiné zemi|คิดว่าจะเจอความรักในอีกประเทศ
+love|nechtěl{a} mít děti|อยากมีลูก
+love|netančil{a} pomalý tanec s někým, do koho jsem byl{a} blázen|เต้นรำช้าๆ กับคนที่หลงรัก
+love|se nezamiloval{a} do dvou lidí najednou|รักสองคนในเวลาเดียวกัน
+us|nelitoval{a} naší noci|เสียใจเรื่องคืนนั้นของเรา
+us|nevyprávěl{a} kamarádům o naší noci|เล่าเรื่องคืนนั้นของเราให้เพื่อนฟัง
+us|nekoukal{a} na tvoje fotky víc než pětkrát za den|ดูรูปเธอมากกว่าวันละห้าครั้ง
+us|nepřemýšlel{a}, jaké by bylo s tebou bydlet|คิดว่าถ้าได้อยู่ด้วยกันจะเป็นยังไง
+us|nehledal{a} letenky, abych tě mohl{a} vidět|หาตั๋วเครื่องบินเพื่อไปหาเธอ
+us|se neučil{a} slovíčka v tvém jazyce|เรียนคำศัพท์ในภาษาของเธอ
+us|nežárlil{a}, když mi od tebe dlouho nepřišla zpráva|หงุดหงิดเมื่อเธอไม่ตอบข้อความนานๆ
+us|neusnul{a} uprostřed psaní s tebou|หลับไประหว่างแชทกับเธอ
+us|neřekl{a} o tobě rodičům|เล่าเรื่องเธอให้พ่อแม่ฟัง
+us|o tobě nesnil{a}|ฝันถึงเธอ
+us|si nečetl{a} tvoje zprávy pořád dokola|อ่านข้อความของเธอซ้ำไปซ้ำมา
+us|nebyl{a} nervózní před videohovorem s tebou|ตื่นเต้นก่อนวิดีโอคอลกับเธอ
+us|nepřemýšlel{a}, jak by vypadaly naše děti|คิดว่าลูกของเราจะหน้าตาเป็นยังไง
+us|neukázal{a} tvou fotku kamarádům|เอารูปเธอให้เพื่อนดู
+us|v hlavě neplánoval{a} naše další setkání|วางแผนการเจอกันครั้งหน้าในหัว
+us|nebyl{a} smutn{ý|á} po tom, co jsme se rozloučili|เศร้าหลังจากที่เราบอกลากัน
+us|nenapsal{a} ti dlouhou zprávu a pak ji nesmazal{a}|พิมพ์ข้อความยาวถึงเธอแล้วลบทิ้ง
+us|si nemyslel{a}, že jsi pro mě až moc dobr{ý|á}|คิดว่าเธอดีเกินไปสำหรับฉัน
+us|nevěděl{a} hned ráno, že tě chci vidět znovu|รู้ตั้งแต่เช้าวันนั้นว่าอยากเจอเธออีก
+us|nepřemýšlel{a}, co si o mně myslíš doopravdy|สงสัยว่าเธอคิดยังไงกับฉันจริงๆ
+us|si nepustil{a} písničku, která mi tě připomíná|เปิดเพลงที่ทำให้นึกถึงเธอ
+us|nezměnil{a} kvůli tobě plány|เปลี่ยนแผนเพราะเธอ
+us|nepoužil{a} překladač, protože jsem nerozuměl{a} tvé zprávě|ใช้แอปแปลภาษาเพราะไม่เข้าใจข้อความของเธอ
+us|nechtěl{a} ti zavolat uprostřed noci|อยากโทรหาเธอกลางดึก
+us|si nepředstavoval{a} nás dva za pět let|จินตนาการถึงเราสองคนในอีกห้าปี
+spicy|se nevyspal{a} s někým na prvním rande|มีอะไรกับใครตั้งแต่เดทแรก
+spicy|neměl{a} one night stand|มีวันไนท์สแตนด์
+spicy|neposlal{a} nahou fotku|ส่งรูปโป๊
+spicy|neměl{a} sex na veřejném místě|มีเซ็กส์ในที่สาธารณะ
+spicy|neměl{a} sex v autě|มีเซ็กส์ในรถ
+spicy|neměl{a} sex na pláži|มีเซ็กส์บนชายหาด
+spicy|nepoužil{a} hračku pro dospělé|ใช้ของเล่นผู้ใหญ่
+spicy|nepředstíral{a} orgasmus|แกล้งทำเป็นถึงจุดสุดยอด
+spicy|neměl{a} erotický sen o někom, koho znám|ฝันเรื่องอย่างว่ากับคนที่รู้จัก
+spicy|nefantazíroval{a} o trojce|จินตนาการเรื่องเซ็กส์สามคน
+spicy|neměl{a} trojku|มีเซ็กส์สามคน
+spicy|netancoval{a} pro někoho striptýz|เต้นเปลื้องผ้าให้ใครดู
+spicy|nesextoval{a}|เซ็กซ์แชท
+spicy|neměl{a} sex přes videohovor|มีเซ็กส์ผ่านวิดีโอคอล
+spicy|nespal{a} nah{ý|á}|นอนเปลือย
+spicy|nebyl{a} v posteli svázan{ý|á}|โดนมัดบนเตียง
+spicy|nikoho nesvázal{a}|มัดคนอื่นบนเตียง
+spicy|neměl{a} sex ve sprše|มีเซ็กส์ในห้องอาบน้ำ
+spicy|se nevyspal{a} s ex po rozchodu|มีอะไรกับแฟนเก่าหลังเลิกกัน
+spicy|neměl{a} kamaráda s výhodami|มีเพื่อนที่มีอะไรกัน (FWB)
+spicy|se nedíval{a} na porno s partnerem|ดูหนังโป๊กับแฟน
+spicy|neschovával{a} cucflek|ต้องปิดรอยดูดที่คอ
+spicy|nebyl{a} přistižen{ý|á} při sexu|โดนจับได้ตอนมีเซ็กส์
+spicy|neměl{a} sex víc než třikrát za noc|มีเซ็กส์มากกว่าสามครั้งในคืนเดียว
+spicy|nezkoušel{a} v posteli hrát role|เล่นบทบาทสมมติบนเตียง
+spicy|si nekoupil{a} sexy prádlo, abych se někomu líbil{a}|ซื้อชุดชั้นในเซ็กซี่เพื่อให้ใครดู
+spicy|nedostal{a} stížnost od sousedů kvůli hluku z postele|โดนเพื่อนบ้านบ่นเพราะเสียงดังบนเตียง
+spicy|nemyslel{a} na naši noc, když jsem byl{a} {sám|sama}|คิดถึงคืนนั้นของเราตอนอยู่คนเดียว
+spicy|tě nechtěl{a} políbit hned, jak jsem tě uviděl{a}|อยากจูบเธอตั้งแต่แรกเห็น
+spicy|se nevyspal{a} s někým o víc než deset let starším|มีอะไรกับคนที่อายุมากกว่าสิบปี
+spicy|nepoužil{a} v posteli jídlo – šlehačku nebo čokoládu|ใช้อาหารบนเตียง เช่น วิปครีมหรือช็อกโกแลต
+spicy|nenatočil{a} intimní video|ถ่ายคลิปตอนมีอะไรกัน
+spicy|neměl{a} masáž, která skončila v posteli|ได้นวดแล้วจบลงที่เตียง
+spicy|neprovokoval{a} nikoho pod stolem|แอบยั่วใครใต้โต๊ะ
+spicy|nebyl{a} v sex shopu|เข้าร้านเซ็กซ์ช็อป
+spicy|neměl{a} sex v práci|มีอะไรกันที่ทำงาน
+spicy|nebyl{a} na nudistické pláži|ไปหาดนู้ด
+spicy|neposlal{a} lechtivou zprávu omylem špatnému člověku|ส่งข้อความหวิวๆ ผิดคน
+spicy|po nikom netoužil{a} tak, že jsem nemohl{a} spát|อยากได้ใครจนนอนไม่หลับ
+spicy|neměl{a} sex hned ráno po probuzení|มีเซ็กส์ทันทีที่ตื่นนอนตอนเช้า
+spicy|neřekl{a} partnerovi svou nejtajnější fantazii|บอกแฟนเรื่องแฟนตาซีที่ลับที่สุด
+spicy|nebyl{a} {ten|ta}, kdo v posteli převzal úplně kontrolu|เป็นฝ่ายควบคุมบนเตียงทั้งหมด
+spicy|neměl{a} sex na balkoně nebo pod oknem, kde nás mohl někdo vidět|มีเซ็กส์ที่ระเบียงที่คนอื่นอาจมองเห็น
+spicy|nevyprávěl{a} kamarádům podrobnosti ze sexu|เล่ารายละเอียดเรื่องเซ็กส์ให้เพื่อนฟัง
+spicy|nechtěl{a} zkusit něco, co jsem ještě nikdy nedělal{a}, ale styděl{a} jsem se říct|อยากลองอะไรใหม่บนเตียงแต่อายที่จะบอก
+spicy|nebyl{a} na hotelu jen kvůli sexu|เปิดโรงแรมเพื่อมีอะไรกันอย่างเดียว
+spicy|se neprobudil{a} vedle někoho, jehož jméno jsem nevěděl{a}|ตื่นมาข้างคนที่ไม่รู้ชื่อ
+spicy|nesvlékl{a} někoho zuby|ถอดเสื้อผ้าให้ใครด้วยฟัน
+spicy|neměl{a} sex v letadle, vlaku nebo na lodi|มีเซ็กส์บนเครื่องบิน รถไฟ หรือเรือ
+`;
+const Q = RAW.trim().split("\n").map((l,i)=>{const a=l.indexOf("|"),b=l.lastIndexOf("|");return {id:"q"+i,c:l.slice(0,a),cs:l.slice(a+1,b),th:l.slice(b+1)};});
+
+const CATS = ["life","past","travel","fun","love","us","spicy"];
+const T = {
+  cs:{sub:"hra pro dva na dálku",lead:"Nikdy jsem…",cats:{life:"Život",past:"Minulost",travel:"Cestování",fun:"Zábava & jídlo",love:"Láska",us:"My dva",spicy:"18+ Pikantní"},
+    play:"Hrát",hist:"Naše odpovědi",set:"Nastavení",next:"Další karta →",shuffle:"Zamíchat",you:"Tvoje odpověď",yes:"Já ano!",no:"Já ne",
+    ph:"Řekni k tomu víc… kdy, s kým, jak to bylo?",send:"Odeslat",sent:"Odesláno",update:"Upravit odpověď",partner:"Odpověď partnera",
+    hidden:"Odpověď je skrytá",hiddenSub:"Nejdřív odpověz ty — pak se karta otočí.",waiting:"Zatím neodpověděl/a",waitingSub:"Až odpoví, uvidíš to tady.",
+    did:"Já ano!",didnt:"Já ne",orig:"Původně",translate:"Přeložit",gt:"Otevřít v Google Překladači",
+    micHint:"Klepni na mikrofon a mluv — text se sám napíše.",micNo:"Tady prohlížeč diktování neumí — použij mikrofon na klávesnici telefonu.",
+    live:"Hrajete spolu",local:"Databáze není připojená — hra se zatím neukládá.",connecting:"Připojuji…",
+    pick:"Vyber nejdřív „Já ano“ nebo „Já ne“.",translating:"Překládám…",
+    setupT:"Jak ti má partner říkat?",nickPh:"Tvoje jméno",genderL:"Tvary v otázkách:",gm:"on (spal)",gf:"ona (spala)",save:"Uložit",
+    card:"karta",of:"z",noHist:"Zatím žádné odpovědi. Otoč první kartu!",both:"Oba ano",match:"Shoda",answered:"Zodpovězeno",
+    me:"Já",them:"Partner",waitShort:"čeká…",partnerAns:"odpověděl/a ✓",nobody:"Partner se ještě nepřipojil",
+    setNick:"Změnit jméno a tvary",reset:"Začít balíček znovu",resetDone:"Balíček zamíchán",shareHint:"Tohle je odkaz na vaši hru. Pošli ho partnerce — kdo ho má, hraje s tebou. Každý si nahoře přepne svůj jazyk.",copy:"Zkopírovat odkaz",copied:"Odkaz zkopírován",
+    onlyQ:"Žádná kategorie není vybraná."},
+  th:{sub:"เกมสำหรับสองคนที่อยู่ไกลกัน",lead:"ฉันไม่เคย…",cats:{life:"ชีวิต",past:"อดีต",travel:"เที่ยว",fun:"สนุก & อาหาร",love:"ความรัก",us:"เราสองคน",spicy:"18+ เผ็ดร้อน"},
+    play:"เล่น",hist:"คำตอบของเรา",set:"ตั้งค่า",next:"การ์ดถัดไป →",shuffle:"สับการ์ด",you:"คำตอบของคุณ",yes:"ฉันเคย!",no:"ไม่เคย",
+    ph:"เล่าเพิ่มหน่อย… เมื่อไหร่ กับใคร เป็นยังไง?",send:"ส่ง",sent:"ส่งแล้ว",update:"แก้ไขคำตอบ",partner:"คำตอบของอีกฝ่าย",
+    hidden:"คำตอบถูกซ่อนอยู่",hiddenSub:"ตอบก่อน แล้วการ์ดจะพลิก",waiting:"ยังไม่ได้ตอบ",waitingSub:"เมื่อเขาตอบ จะเห็นตรงนี้",
+    did:"เคย!",didnt:"ไม่เคย",orig:"ต้นฉบับ",translate:"แปล",gt:"เปิดใน Google แปลภาษา",
+    micHint:"แตะไมค์แล้วพูด ข้อความจะพิมพ์เอง",micNo:"ใช้ไมค์บนแป้นพิมพ์มือถือเพื่อพูดแทนการพิมพ์",
+    live:"กำลังเล่นด้วยกัน",local:"ยังไม่ได้เชื่อมต่อฐานข้อมูล — เกมยังไม่ถูกบันทึก",connecting:"กำลังเชื่อมต่อ…",
+    pick:"เลือก „ฉันเคย“ หรือ „ไม่เคย“ ก่อน",translating:"กำลังแปล…",
+    setupT:"อยากให้อีกฝ่ายเรียกคุณว่าอะไร?",nickPh:"ชื่อของคุณ",genderL:"",gm:"",gf:"",save:"บันทึก",
+    card:"การ์ด",of:"จาก",noHist:"ยังไม่มีคำตอบ ลองพลิกการ์ดแรกเลย!",both:"เคยทั้งคู่",match:"ตรงกัน",answered:"ตอบแล้ว",
+    me:"ฉัน",them:"อีกฝ่าย",waitShort:"รออยู่…",partnerAns:"ตอบแล้ว ✓",nobody:"อีกฝ่ายยังไม่ได้เข้าร่วม",
+    setNick:"เปลี่ยนชื่อ",reset:"เริ่มสำรับใหม่",resetDone:"สับการ์ดแล้ว",shareHint:"นี่คือลิงก์เกมของเรา ใครมีลิงก์นี้ก็เล่นด้วยกันได้ แต่ละคนเลือกภาษาของตัวเองด้านบน",copy:"คัดลอกลิงก์",copied:"คัดลอกแล้ว",
+    onlyQ:"ยังไม่ได้เลือกหมวดหมู่"}
+};
+
+/* ---------- local prefs ---------- */
+const LS={get(k,d){try{const v=localStorage.getItem("nj_"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("nj_"+k,JSON.stringify(v))}catch(e){}}};
+const S={lang:LS.get("lang","cs"),gender:LS.get("gender",""),nick:LS.get("nick",""),view:"play",
+  game:{cats:CATS.slice(),seed:20261121,pos:0},answers:{},players:{},choice:null,dirty:false,lastQid:null};
+let dict=null,me=LS.get("uid",null)||("u"+Math.random().toString(36).slice(2,12));
+LS.set("uid",me);
+let ROOM=new URLSearchParams(location.search).get("room");
+if(!ROOM||!/^[a-z0-9-]{4,40}$/.test(ROOM)){ROOM=Math.random().toString(36).slice(2,8)+"-"+Math.random().toString(36).slice(2,6);
+  const u=new URL(location.href);u.searchParams.set("room",ROOM);history.replaceState(null,"",u)}
+let dbDown=false,booted=false,canTranslate=true;
+async function api(type,data){
+  try{const r=await fetch("/api/room",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({room:ROOM,uid:me,type,data})});
+    if(!r.ok)throw new Error(r.status);return true}catch(e){return false}
+}
+let online=false;
+const $=id=>document.getElementById(id);
+const t=k=>T[S.lang][k];
+
+/* ---------- helpers ---------- */
+function gform(s,g){
+  return s.replace(/\{([^{}|]*)\|([^{}]*)\}/g,(m,a,b)=>g==="m"?a:g==="f"?b:a+"/"+b)
+          .replace(/\{a\}/g,g==="m"?"":g==="f"?"a":"(a)");
+}
+function qText(q,lang){return lang==="th"?q.th:gform(q.cs,S.gender)}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+function deck(){const r=rng(S.game.seed);const ids=Q.filter(q=>S.game.cats.includes(q.c)).map(q=>q.id);
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}return ids}
+function current(){const d=deck();if(!d.length)return null;const p=((S.game.pos%d.length)+d.length)%d.length;return {q:Q.find(x=>x.id===d[p]),p,n:d.length}}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let toastT;function toast(m){const el=$("toast");el.textContent=m;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2200)}
+function partnerId(){const ids=new Set([...Object.keys(S.players),...Object.values(S.answers).map(a=>a.uid)]);ids.delete(me);return [...ids][0]||null}
+function ans(qid,uid){return uid?S.answers[qid+"__"+uid]:null}
+function textFor(a,lang){if(!a)return "";return a[lang]||a.text||""}
+function gtLink(text,to){return "https://translate.google.com/?sl=auto&tl="+to+"&text="+encodeURIComponent(text)+"&op=translate"}
+
+/* ---------- render ---------- */
+function renderChrome(){
+  document.documentElement.lang=S.lang;
+  $("lcs").setAttribute("aria-pressed",S.lang==="cs");$("lth").setAttribute("aria-pressed",S.lang==="th");
+  $("brand").firstChild.nodeValue=t("lead");$("sub").textContent=t("sub");
+  $("tPlay").textContent=t("play");$("tHist").textContent=t("hist");$("tSet").textContent=t("set");
+  $("next").textContent=t("next");$("shuffle").textContent=t("shuffle");
+  $("youT").textContent=t("you")+(S.nick?" · "+S.nick:"");
+  $("yes").textContent=t("yes");$("no").textContent=t("no");$("text").placeholder=t("ph");
+  $("setupT").textContent=t("setupT");$("nick").placeholder=t("nickPh");$("saveNick").textContent=t("save");
+  $("genderRow").hidden=S.lang==="th";$("genderL").textContent=t("genderL");$("gm").textContent=t("gm");$("gf").textContent=t("gf");
+  $("gm").setAttribute("aria-pressed",S.gender==="m");$("gf").setAttribute("aria-pressed",S.gender==="f");
+  $("cats").innerHTML=CATS.map(c=>`<button class="chip${c==="spicy"?" spicy":""}" data-c="${c}" aria-pressed="${S.game.cats.includes(c)}">${esc(t("cats")[c])}</button>`).join("");
+  $("mic").hidden=!dict;$("micHint").textContent=dict?t("micHint"):t("micNo");
+  for(const v of ["play","hist","set"]){$(v).hidden=S.view!==v;$("t"+v[0].toUpperCase()+v.slice(1)).setAttribute("aria-selected",S.view===v)}
+  const pid=partnerId(),pn=pid&&S.players[pid]?.nick;
+  $("sdot").className="dot"+(online?" on":"");
+  $("stext").textContent=online?(t("live")+(S.nick?" · "+S.nick:"")+(pn?" & "+pn:" · "+t("nobody"))):(dbDown?t("local"):t("connecting"));
+  $("setup").hidden=!!S.nick;
+  $("invite").hidden=!!pid;$("invite").textContent=t("copy");
+}
+function renderCard(anim){
+  const c=current(),card=$("card");
+  if(!c){card.innerHTML=`<div class="lead">${esc(t("onlyQ"))}</div>`;return}
+  const {q,p,n}=c;
+  const draw=()=>{
+    card.innerHTML=`<div class="meta"><span class="cat${q.c==="spicy"?" spicy":""}">${esc(t("cats")[q.c])}</span><span>${S.lang==="cs"?"ฉันไม่เคย…":"Nikdy jsem…"}</span></div>
+      <div class="lead">${esc(t("lead"))}</div><div class="q ${S.lang}">${esc(qText(q,S.lang))}</div>
+      <div class="foot"><span>${esc(S.lang==="cs"?q.th:gform(q.cs,S.gender))}</span><span>${p+1}/${n}</span></div>`;
+    card.querySelector(".foot span").style.cssText="opacity:.75;max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+  };
+  if(anim){card.classList.remove("deal-in");card.classList.add("deal-out");setTimeout(()=>{draw();card.classList.remove("deal-out");void card.offsetWidth;card.classList.add("deal-in")},360)}
+  else draw();
+  if(S.lastQid!==q.id){S.lastQid=q.id;const mine=ans(q.id,me);S.choice=mine?.did||null;$("text").value=mine?(mine.text||""):"";S.dirty=false;$("flip").classList.remove("open")}
+  renderPad();renderPartner();
+}
+function renderPad(){
+  const c=current();if(!c)return;const mine=ans(c.q.id,me);
+  $("yes").setAttribute("aria-pressed",S.choice==="yes");$("no").setAttribute("aria-pressed",S.choice==="no");
+  $("send").textContent=mine&&!S.dirty?("✓ "+t("sent")):(mine?t("update"):t("send"));
+  $("send").disabled=!!(mine&&!S.dirty);
+}
+function renderPartner(){
+  const c=current();if(!c)return;const pid=partnerId(),pa=ans(c.q.id,pid),mine=ans(c.q.id,me),pn=(pid&&S.players[pid]?.nick)||t("them");
+  $("partnerT").textContent=t("partner")+(pid?" · "+pn:"");
+  const flip=$("flip");
+  if(!pa){flip.classList.remove("open");$("pback").innerHTML=`<b>${esc(t("waiting"))}</b><span>${esc(t("waitingSub"))}</span>`;return}
+  if(!mine){flip.classList.remove("open");$("pback").innerHTML=`<b>${esc(pn)} ${esc(t("partnerAns"))}</b><span>${esc(t("hiddenSub"))}</span>`;return}
+  const said=textFor(pa,S.lang),hasTr=!!pa[S.lang];
+  let extra="";
+  if(pa.text&&pa.lang!==S.lang){
+    extra=`<div class="orig">${esc(t("orig"))}: ${esc(pa.text)}</div><div class="orig">`+
+      (!hasTr&&canTranslate?`<button class="link" data-tr="${esc(pa.qid+"__"+pa.uid)}">${esc(t("translate"))}</button> · `:"")+
+      `<a href="${gtLink(pa.text,S.lang)}" target="_blank" rel="noopener">${esc(t("gt"))}</a></div>`;
+  }
+  $("pfront").innerHTML=`<div class="who">${esc(pn)}</div><div class="verdict ${pa.did==="yes"?"y":"n"}">${esc(pa.did==="yes"?t("did"):t("didnt"))}</div>
+    ${said?`<div class="said">${esc(said)}</div>`:""}${extra}`;
+  // size the flip box to its content
+  requestAnimationFrame(()=>{const h=$("pfront").scrollHeight;flip.querySelector(".flip-in").style.minHeight=Math.max(150,h)+"px"});
+  if(!flip.classList.contains("open"))setTimeout(()=>flip.classList.add("open"),80);
+}
+function renderHist(){
+  const pid=partnerId(),pn=(pid&&S.players[pid]?.nick)||t("them");
+  const qids=[...new Set(Object.values(S.answers).map(a=>a.qid))].map(id=>Q.find(q=>q.id===id)).filter(Boolean)
+    .sort((a,b)=>Math.max(...Object.values(S.answers).filter(x=>x.qid===b.id).map(x=>x.ts||0))-Math.max(...Object.values(S.answers).filter(x=>x.qid===a.id).map(x=>x.ts||0)));
+  if(!qids.length){$("hist").innerHTML=`<div class="empty">${esc(t("noHist"))}</div>`;return}
+  let both=0,match=0,full=0;
+  for(const q of qids){const a=ans(q.id,me),b=ans(q.id,pid);if(a&&b){full++;if(a.did===b.did)match++;if(a.did==="yes"&&b.did==="yes")both++}}
+  const cell=(a,who,isMe)=>{
+    if(!a)return `<div><div class="who">${esc(who)}</div><div class="v w">${esc(t("waitShort"))}</div></div>`;
+    const myA=ans(a.qid,me);const hide=!isMe&&!myA;
+    return `<div><div class="who">${esc(who)}</div>${hide?`<div class="v w">🔒</div>`:`<div class="v ${a.did==="yes"?"y":"n"}">${esc(a.did==="yes"?t("did"):t("didnt"))}</div>${textFor(a,S.lang)?`<div class="t">${esc(textFor(a,S.lang))}</div>`:""}`}</div>`;
+  };
+  $("hist").innerHTML=`<div class="hist"><div class="score"><div><b>${qids.length}</b><span>${esc(t("answered"))}</span></div><div><b>${full?Math.round(match/full*100):0}%</b><span>${esc(t("match"))}</span></div><div><b>${both}</b><span>${esc(t("both"))}</span></div></div>`+
+    qids.map(q=>`<div class="hcard"><div class="hq">${esc(t("lead"))} ${esc(qText(q,S.lang))}</div><div class="hans">${cell(ans(q.id,me),S.nick||t("me"),true)}${cell(ans(q.id,pid),pn,false)}</div></div>`).join("")+`</div>`;
+}
+function renderSet(){
+  $("set").innerHTML=`<div class="setup"><p class="hint" style="margin:0">${esc(t("shareHint"))}</p>
+    <input id="shareUrl" readonly value="${esc(location.href)}"><button class="btn lamp" id="copyUrl">${esc(t("copy"))}</button>
+    <button class="btn" id="editNick">${esc(t("setNick"))}</button>
+    <button class="btn" id="resetDeck">${esc(t("reset"))}</button></div>`;
+  $("copyUrl").onclick=()=>{const v=$("shareUrl");navigator.clipboard?.writeText(v.value).then(()=>toast("✓ "+t("copied")),()=>{v.select()});if(!navigator.clipboard)v.select()};
+  $("editNick").onclick=()=>{S.nick="";$("nick").value=LS.get("nick","");S.view="play";renderAll();$("nick").focus()};
+  $("resetDeck").onclick=()=>{setGame({seed:Math.floor(Math.random()*1e9),pos:0});toast(t("resetDone"))};
+}
+function renderAll(anim){renderChrome();renderCard(anim);if(S.view==="hist")renderHist();if(S.view==="set")renderSet()}
+
+/* ---------- shared game state ---------- */
+function setGame(patch,anim=true){
+  S.game={...S.game,...patch};renderAll(anim);
+  if(online){S.localTs=Date.now();api("state",{...S.game,by:me,ts:S.localTs})}
+}
+async function savePlayer(){
+  if(!online)return;
+  api("player",{nick:S.nick||"",lang:S.lang,ts:Date.now()});
+}
+async function translate(text,from){
+  if(!text)return null;
+  try{const r=await fetch("/api/translate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text,from})});
+    if(!r.ok)return null;const j=await r.json();if(typeof j.cs==="string"&&typeof j.th==="string")return j}catch(e){}
+  return null;
+}
+async function submit(){
+  const c=current();if(!c)return;
+  if(!S.choice){toast(t("pick"));return}
+  const text=$("text").value.trim();
+  const rec={qid:c.q.id,uid:me,nick:S.nick||"",did:S.choice,text,lang:S.lang,ts:Date.now(),cs:"",th:""};
+  rec[S.lang]=text;
+  const key=c.q.id+"__"+me;
+  S.answers[key]=rec;S.dirty=false;renderPad();renderPartner();
+  if(text&&canTranslate){$("send").textContent=t("translating");const tr=await translate(text,S.lang);if(tr){rec.cs=tr.cs;rec.th=tr.th;rec[S.lang]=text}}
+  if(online){if(!(await api("answer",rec)))toast("⚠ Offline")}
+  LS.set("answers_"+ROOM,S.answers);
+  renderPad();toast("✓ "+t("sent"));
+}
+
+/* ---------- events ---------- */
+$("lcs").onclick=()=>{S.lang="cs";LS.set("lang","cs");savePlayer();renderAll()};
+$("lth").onclick=()=>{S.lang="th";LS.set("lang","th");savePlayer();renderAll()};
+$("gm").onclick=()=>{S.gender="m";LS.set("gender","m");renderAll()};
+$("gf").onclick=()=>{S.gender="f";LS.set("gender","f");renderAll()};
+$("saveNick").onclick=()=>{const v=$("nick").value.trim();if(!v){$("nick").focus();return}S.nick=v;LS.set("nick",v);savePlayer();renderAll()};
+$("nick").addEventListener("keydown",e=>{if(e.key==="Enter")$("saveNick").click()});
+$("cats").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const c=b.dataset.c;let cats=S.game.cats.includes(c)?S.game.cats.filter(x=>x!==c):[...S.game.cats,c];setGame({cats,pos:0})};
+$("next").onclick=()=>setGame({pos:S.game.pos+1});
+$("prev").onclick=()=>setGame({pos:S.game.pos-1});
+$("shuffle").onclick=()=>setGame({seed:Math.floor(Math.random()*1e9),pos:0});
+$("yes").onclick=()=>{S.choice="yes";S.dirty=true;renderPad()};
+$("no").onclick=()=>{S.choice="no";S.dirty=true;renderPad()};
+$("text").addEventListener("input",()=>{S.dirty=true;renderPad()});
+$("send").onclick=submit;
+$("invite").onclick=()=>{navigator.clipboard?.writeText(location.href).then(()=>toast("✓ "+t("copied")),()=>{S.view="set";renderAll()});if(!navigator.clipboard){S.view="set";renderAll()}};
+for(const [id,v] of [["tPlay","play"],["tHist","hist"],["tSet","set"]])$(id).onclick=()=>{S.view=v;renderAll()};
+$("pfront").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-tr]");if(!b)return;const a=S.answers[b.dataset.tr];if(!a)return;
+  b.textContent=t("translating");const tr=await translate(a.text,a.lang);
+  if(tr){a.cs=a.lang==="cs"?a.text:tr.cs;a.th=a.lang==="th"?a.text:tr.th;renderPartner();if(online)api("answer",a)}
+  else b.textContent=t("translate");
+});
+document.addEventListener("keydown",e=>{if(e.target.matches("textarea,input"))return;if(e.key==="ArrowRight")$("next").click();if(e.key==="ArrowLeft")$("prev").click()});
+
+/* dictation */
+let micFailedLang=false;
+$("mic").onclick=()=>{
+  if(!dict)return;
+  if(dict.active()){dict.stop().catch(()=>{});return}
+  const opts={language:S.lang};
+  dict.start(opts).catch(err=>{
+    if(err?.code==="unavailable"&&!micFailedLang){micFailedLang=true;toast("🎙 "+t("micNo"))}
+    else if(err?.code==="not_granted"){dict=null;renderChrome()}
+  });
+};
+
+/* ---------- boot ---------- */
+S.answers=LS.get("answers_"+ROOM,{});
+/* dictation: browser speech recognition (Chrome, Android, Safari 14.5+) */
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;
+  let rec=null,state="idle";const H={final:[],partial:[],state:[]};
+  const emit=(k,v)=>H[k].forEach(f=>f(v));const setState=(st)=>{state=st;emit("state",{state:st})};
+  dict={active:()=>state!=="idle",
+    start(opts){return new Promise((res,rej)=>{
+      rec=new SR();rec.lang=(opts&&opts.language)==="th"?"th-TH":"cs-CZ";rec.interimResults=true;rec.continuous=true;
+      rec.onstart=()=>{setState("listening");res()};
+      rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)emit("final",{text:" "+r[0].transcript.trim()});else interim+=r[0].transcript}emit("partial",{text:interim})};
+      rec.onerror=e=>{if(e.error==="not-allowed"||e.error==="service-not-allowed")rej({code:"not_granted"});else if(e.error!=="no-speech"&&e.error!=="aborted")rej({code:"unavailable"})};
+      rec.onend=()=>{emit("partial",{text:""});setState("idle")};
+      try{setState("starting");rec.start()}catch(err){setState("idle");rej({code:"unavailable"})}
+    })},
+    stop(){try{rec&&rec.stop()}catch(e){}return Promise.resolve()},
+    onFinal:f=>H.final.push(f),onPartial:f=>H.partial.push(f),onState:f=>H.state.push(f)};
+})();
+if(dict){
+  dict.onFinal(({text})=>{const ta=$("text");ta.value=ta.value?ta.value+text:text.replace(/^\s+/,"");S.dirty=true;renderPad()});
+  dict.onPartial(({text})=>{$("partial").hidden=!text;$("partial").textContent=text});
+  dict.onState(({state})=>{$("mic").classList.toggle("live",state!=="idle");if(state==="idle")$("partial").hidden=true});
+}
+renderAll(false);
+
+/* sync: poll the room every few seconds */
+let polling=false;
+async function poll(){
+  if(polling||document.hidden)return;polling=true;
+  try{
+    const r=await fetch("/api/room?room="+encodeURIComponent(ROOM),{cache:"no-store"});
+    if(r.status===503){dbDown=true;online=false;renderChrome();return}
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();dbDown=false;
+    if(!online){online=true;if(S.nick)savePlayer()}
+    S.players=j.players||{};
+    const m={};for(const [k,v] of Object.entries(j.answers||{}))if(v&&v.qid&&v.uid)m[k]=v;
+    // keep my newer local copies (just sent, server not yet updated)
+    for(const [k,v] of Object.entries(S.answers))if(v.uid===me&&(!m[k]||(m[k].ts||0)<(v.ts||0)))m[k]=v;
+    S.answers=m;LS.set("answers_"+ROOM,m);
+    const d=j.state;
+    if(d&&(d.ts||0)>(S.localTs||0)){
+      const changed=d.pos!==S.game.pos||d.seed!==S.game.seed||JSON.stringify(d.cats)!==JSON.stringify(S.game.cats);
+      S.localTs=d.ts;S.game={cats:Array.isArray(d.cats)?d.cats.filter(x=>CATS.includes(x)):CATS.slice(),seed:d.seed|0,pos:d.pos|0};
+      if(changed){renderAll(d.by!==me);polling=false;return}
+    }
+    renderChrome();renderPad();renderPartner();if(S.view==="hist")renderHist();
+  }catch(e){}finally{polling=false}
+}
+poll();setInterval(poll,2500);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)poll()});
+</script>
+</body>
+</html>

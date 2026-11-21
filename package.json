@@ -1,0 +1,6 @@
+{
+  "name": "nikdy-jsem",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
+}
