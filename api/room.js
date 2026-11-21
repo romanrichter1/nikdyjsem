@@ -7,6 +7,7 @@ const clip = (v, n) => (typeof v === "string" ? v.slice(0, n) : "");
 
 function parseHash(arr) {
   const o = {};
+  if (arr && !Array.isArray(arr) && typeof arr === "object") { for (const [k, v] of Object.entries(arr)) { try { o[k] = JSON.parse(v); } catch {} } return o; }
   if (Array.isArray(arr)) for (let i = 0; i < arr.length; i += 2) { try { o[arr[i]] = JSON.parse(arr[i + 1]); } catch {} }
   return o;
 }
@@ -14,6 +15,11 @@ function parseHash(arr) {
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (!hasDb()) return res.status(503).json({ error: "no-db" });
+  try { return await handle(req, res); }
+  catch (e) { return res.status(500).json({ error: "db-error", detail: String(e.message || e).slice(0, 200) }); }
+}
+
+async function handle(req, res) {
 
   if (req.method === "GET") {
     const room = String(req.query.room || "");
