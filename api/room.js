@@ -14,7 +14,7 @@ function parseHash(arr) {
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  if (!hasDb()) return res.status(503).json({ error: "no-db" });
+  if (!hasDb()) return res.status(503).json({ error: "no-db", seen: Object.keys(process.env).filter((k) => /REDIS|KV|UPSTASH|STORAGE|DATABASE/i.test(k)), build: "2" });
   try { return await handle(req, res); }
   catch (e) { return res.status(500).json({ error: "db-error", detail: String(e.message || e).slice(0, 200) }); }
 }
